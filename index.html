@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Have you heard this before?</title>
+    <script src="jspsych/jspsych.js"></script>
+    <script src="jspsych/jspsychsheet.js"></script>
+    <script src="jspsych/plugin-survey-text.js"></script>
+    <script src="jspsych/plugin-preload.js"></script>
+    <script src="jspsych/plugin-html-keyboard-response.js"></script>
+    <script src="jspsych/plugin-html-button-response.js"></script>
+    <script src="jspsych/plugin-html-slider-response.js"></script>
+    <script src="jspsych/plugin-audio-button-response.js"></script>
+    <script src="jspsych/plugin-audio-keyboard-response.js"></script>
+    <script src="jspsych/plugin-audio-slider-response.js"></script>
+    <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+    <link href="jspsych/jspsychsheet.css" rel="stylesheet" type="text/css" />
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        .jspsych-display-element {
+            font-size: 24px;
+        }
+    </style>
+</head>
+  <body></body>
+  <script>
+    var jsPsych = initJsPsych({
+        show_progress_bar: true,
+        on_finish: function () {
+        url = "https://script.google.com/macros/s/AKfycbyS013UMZx0jipldkReVYRGNGAGK-_F3L9mAd5zYdpp5T65nHuhDhWh1yvhwhK4q4mN/exec";
+        jsPsychSheet.uploadData(url, jsPsych.data.get().csv())
+        }
+    });
+    var timeline = [];
+
+    var preload = {
+    type: jsPsychPreload,
+    auto_preload: true
+    }
+
+    var idInputTrial = {
+            type: jsPsychSurveyText,
+            questions: [
+                {prompt: 'User ID:', placeholder: '000000', required: true},
+            ]
+    };
+    timeline.push(idInputTrial);
+
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+            stimulus: `
+            <p>Welcome to the experiment.</p>
+            <p>This is an experiment based on Krumhansl's study on "Memory for musical surface".</p>
+            `,
+            choices:['Continue to instructions']
+    };
+    timeline.push(welcome);
+
+    var instructions1 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <div style="text-align: left; margin: 3in; margin-bottom: 1in; margin-top: 1in;">
+        <p>This experiment investigates the ability to judge whether or not a musical segment belongs to a larger piece of music of which you would hear only the first half.<br>
+            The piece is quite homogeneous from beginning to end and the test segments.<br>
+            <ol>
+                <li>may come from the first half of the piece (which you would have heard),</li>
+                <li>may come from the second half of the piece (which you have not heard), or</li>
+                <li>may be transformations of material from the second half of the piece.</li></ol>
+            Indicate, on an 8-point scale, how sure you are that a segment you heard belongs to the piece.<br>
+            1 = definitely does not belong to the piece;<br>
+            8 = definitely does belong to the piece<br>
+            Remember, <strong>"belongs to the piece"</strong> means the test segment came from either the first half of the piece (which you have heard) or the second half (with you have not heard).</p>
+    </div>
+    `,
+    choices:['Next']
+};
+timeline.push(instructions1);
+
+var instructions2 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <div style="text-align: left; margin: 3in; margin-bottom: 1in; margin-top: 1in;">
+        <p>First, you are going to listen to a clip of the first part of this piece.<br>
+            It will only be played once.<br>
+            After that, you will proceed to the experimental trials.<br>
+            For each clip you hear in the experimental trials, indicate by moving the slider,<br>
+            how sure you are that the segment belongs to the piece.<br>
+            If you think it definitely does not belong to the piece, move the slider all the way to the left at (1).<br>
+            If you think it definitely belongs to the piece, move the slider all the way to the right at (8).<br><br>
+            There will be two experimental blocks with 13 trials in each block.</p>
+    </div>
+    `,
+    choices:['Click here to start the experiment']
+};
+timeline.push(instructions2);
+
+var playFirstPart = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <div style="text-align: left; margin: 3in; margin-bottom: 1in; margin-top: 1in;">
+        <p>Now, you are going to listen to the first part of the piece.</p>
+    </div>
+    `,
+    choices:['Play the first part of the piece']
+};
+timeline.push(playFirstPart);
+
+var origclip = {
+    type:jsPsychAudioButtonResponse,
+    stimulus: 'sound/O_present.mp3',
+    choices: ['Proceed to experimental trials'],
+    response_allowed_while_playing: false
+};
+timeline.push(origclip);
+
+var audioStimuli = ['sound/O1.mp3', 'sound/O2.mp3', 'sound/O3.mp3', 'sound/O4.mp3', 'sound/O5.mp3', 'sound/O6.mp3',
+                    'sound/O7.mp3', 'sound/O8.mp3', 'sound/T11.mp3', 'sound/T12.mp3', 'sound/T13.mp3',
+                    'sound/T14.mp3', 'sound/T15.mp3', 'sound/T16.mp3', 'sound/T17.mp3', 'sound/T18.mp3',
+                    'sound/T21.mp3', 'sound/T22.mp3', 'sound/T23.mp3', 'sound/T24.mp3', 'sound/T25.mp3', 'sound/T26.mp3',
+                    'sound/T27.mp3', 'sound/T28.mp3', 'sound/O_unheard.mp3'];
+
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    while (0 !== currentIndex) {
+
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
+audioStimuli = shuffle(audioStimuli);
+
+var halfway = Math.floor(audioStimuli.length / 2);
+
+var breakTrial1 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <div style="text-align: left; margin: 3in; margin-bottom: 1in; margin-top: 1in;">
+        <p>You have finished the first part of the experiment.<br>
+            Please refresh your memory with the original clip of music before proceeding to the second part of the experiment.</p>
+    </div>
+    `,
+    choices:['Play the original piece again']
+};
+
+var breakTrial2 = {
+    type:jsPsychAudioButtonResponse,
+    stimulus: 'sound/O_present.mp3',
+    choices: ['Proceed to experimental trials'],
+    response_allowed_while_playing: false
+};
+
+for (var i = 0; i < audioStimuli.length; i++) {
+    var audioslide = {
+        type: jsPsychAudioSliderResponse,
+        stimulus: audioStimuli[i],
+        start: 50,
+        step: 0.01,
+        labels: ['<span style="font-size: 0.8em;">1<br>definitely <strong>does not</strong> belong to the piece</span>', 
+             '<span style="font-size: 0.8em;">2</span>', 
+             '<span style="font-size: 0.8em;">3</span>', 
+             '<span style="font-size: 0.8em;">4</span>', 
+             '<span style="font-size: 0.8em;">5</span>', 
+             '<span style="font-size: 0.8em;">6</span>', 
+             '<span style="font-size: 0.8em;">7</span>',
+             '<span style="font-size: 0.8em;">8<br>definitely <strong>does</strong> belong to the piece</span>'],
+        response_allowed_while_playing: false,
+        slider_width: 1000,
+        require_movement: true,
+        button_label: 'Next',
+    };
+    timeline.push(audioslide);
+
+    if (i === halfway) {
+            timeline.push(breakTrial1, breakTrial2);
+            }
+}
+
+    var end = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p>You've come to the end of the experiment.</p>
+        <p>Thank you for participating.</p>
+        <p>You've contributed to science!</p>
+        <p>Woohoo!</p>
+        `,
+        choices:['End experiment and upload my data'],
+        on_finish: function(data) {
+            document.body.innerHTML += '<p>Please wait for your data to finish uploading before closing the browser window.</p>';
+        },
+    };
+    timeline.push(end);
+
+    var all_data = jsPsych.data.get();
+    console.log(all_data.csv());
+
+    jsPsych.run(timeline);
+
+  </script>
+</html>
